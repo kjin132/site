@@ -30,6 +30,7 @@ function Dashboard() {
   const [events, setEvents] = useState([]);
   const [peaks, setPeaks] = useState({ mccb: 0, busbar: 0, wire: 0 });
   const [, setNow] = useState(Date.now()); // 오프라인 판정 재계산용 1초 틱
+  const [lastReceivedAt, setLastReceivedAt] = useState(null); // 브라우저가 실제로 값을 받은 시각
 
   const prevRef = useRef({});
   const peaksRef = useRef({ mccb: 0, busbar: 0, wire: 0 });
@@ -63,13 +64,9 @@ function Dashboard() {
       prevPointRef.current = { mccb: v.mccb, busbar: v.busbar, wire: v.wire };
 
       setData(v);
-      console.log(
-        "[debug] data.timestamp =", v.timestamp,
-        "/ Date.now() =", Date.now(),
-        "/ 차이(ms) =", Date.now() - v.timestamp
-      );
+      setLastReceivedAt(Date.now()); // ⚠️ 백엔드 timestamp가 비정상(예: millis() 경과시간)일 때를 대비한 우회 기준
       setHistory((prev) =>
-        [...prev, { time: formatTime(v.timestamp), mccb: v.mccb, busbar: v.busbar, wire: v.wire }].slice(
+        [...prev, { time: formatTime(Date.now()), mccb: v.mccb, busbar: v.busbar, wire: v.wire }].slice(
           -HISTORY_LIMIT
         )
       );
@@ -118,13 +115,13 @@ function Dashboard() {
   }, []);
 
   const hasData = !!data;
-  const offline = !hasData || isStale(data?.timestamp, STALE_MS);
+  const offline = !hasData || isStale(lastReceivedAt, STALE_MS);
   const overall = hasData ? worstStatus(data) : "normal";
   const worstInfo = hasData ? worstPart(data) : { part: PARTS[0], status: "normal" };
 
   return (
     <div className="dashboard">
-      <TopBar overall={overall} worstInfo={worstInfo} timestamp={data?.timestamp} offline={offline} />
+      <TopBar overall={overall} worstInfo={worstInfo} timestamp={lastReceivedAt} offline={offline} />
 
       {offline && (
         <div className="offline-banner">
@@ -144,32 +141,14 @@ function Dashboard() {
 
 export default function App() {
   const [user, setUser] = useState(undefined); // undefined = 확인 중, null = 비로그인
-  const [authError, setAuthError] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (u) => setUser(u),
-      (err) => {
-        console.error("Firebase Auth 오류:", err);
-        setAuthError(err.message);
-      }
-    );
+    const unsubscribe = onAuthStateChanged(auth, (u) => setUser(u));
     return () => unsubscribe();
   }, []);
 
-  if (authError) {
-    return (
-      <div style={{ padding: 40, fontFamily: "sans-serif", color: "#d7263d" }}>
-        로그인 시스템 연결에 실패했습니다: {authError}
-        <br />
-        .env 파일의 Firebase 설정값을 확인해주세요.
-      </div>
-    );
-  }
-
   if (user === undefined) {
-    return <div style={{ padding: 40, fontFamily: "sans-serif" }}>로딩 중...</div>;
+    return null; // 로그인 상태 확인 중 (깜빡임 방지용 빈 화면)
   }
 
   return user ? <Dashboard /> : <Login />;
