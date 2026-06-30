@@ -1,0 +1,249 @@
+/* src/index.css
+   확정 디자인 기준 전역 스타일.
+   - 배경 #FCFCFD 고정
+   - 종합 상태 칩 / 좌·우 분할 카드 / 게이지 눈금 / 예측 옅은 블루그레이 박스
+   - 한글: Pretendard, 숫자: Roboto Mono
+*/
+
+* { box-sizing: border-box; }
+
+html, body, #root { height: 100%; }
+
+body {
+  margin: 0;
+  background: #fcfcfd;
+  color: #16202b;
+  font-family: "Pretendard", "Noto Sans KR", system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dashboard {
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 20px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid #e6e9ed;
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(22, 32, 43, 0.05);
+}
+
+/* ===== 종합 상태 바 ===== */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  border: 1px solid #e6e9ed;
+  border-radius: 14px;
+  padding: 16px 24px;
+  box-shadow: 0 1px 2px rgba(22, 32, 43, 0.05);
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.topbar-left { display: flex; align-items: center; gap: 16px; }
+.topbar-title { font-size: 16px; font-weight: 700; }
+.topbar-sub { font-size: 12.5px; color: #5c6b7a; margin-top: 2px; }
+.topbar-right { display: flex; align-items: center; gap: 20px; }
+.sim-label { font-size: 11px; color: #9aa5b1; margin-bottom: 6px; text-align: right; }
+.updated-group { text-align: right; }
+.updated-time { font-family: "Roboto Mono", monospace; font-size: 16px; font-weight: 600; }
+.logout-btn {
+  border: 1px solid #e2e6eb;
+  background: #fff;
+  color: #5c6b7a;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.logout-btn:hover { background: #f4f6f9; }
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 700;
+  background: #1f8a5f;
+  color: #fff;
+}
+.status-chip[data-status="warning"] { background: #c98e00; }
+.status-chip[data-status="danger"] { background: #c75a14; }
+.status-chip[data-status="critical"] { background: #d7263d; }
+.status-chip[data-status="offline"] { background: #9aa5b1; }
+.status-chip.outline {
+  background: transparent;
+  border: 1.5px solid currentColor;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  min-width: 0;
+}
+.status-chip.outline[data-status="normal"] { color: #1f8a5f; background: #eaf6f0; }
+.status-chip.outline[data-status="warning"] { color: #c98e00; background: #fdf3da; }
+.status-chip.outline[data-status="danger"] { color: #c75a14; background: #fbe9da; }
+.status-chip.outline[data-status="critical"] { color: #d7263d; background: #fce6e8; }
+.status-chip.outline.dashed { border-style: dashed; }
+
+/* ===== 부위별 카드 ===== */
+
+.card-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 640px) { .card-row { grid-template-columns: 1fr; } }
+
+.part-card { padding: 18px 20px; transition: box-shadow .25s ease, background-color .25s ease; }
+.part-card[data-status="critical"] {
+  background: #fff8f8;
+  box-shadow: 0 0 0 1.5px #f3c4c9, 0 1px 2px rgba(22, 32, 43, 0.05);
+}
+.part-card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.part-card-name { font-size: 14.5px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.part-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.part-card-en { font-size: 11px; color: #9aa5b1; font-weight: 500; font-family: "Roboto Mono", monospace; }
+
+.part-card-split { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; position: relative; }
+.split-col { display: flex; flex-direction: column; gap: 8px; }
+.split-col-right { background: #eef1f6; border-radius: 10px; padding: 12px 14px; gap: 6px; }
+.col-eyebrow { font-size: 11px; color: #9aa5b1; font-weight: 600; }
+.part-card-temp {
+  font-family: "Roboto Mono", monospace;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.part-card-temp .unit { font-size: 14px; color: #9aa5b1; }
+.trend-arrow { font-size: 14px; color: #9aa5b1; margin-left: 2px; }
+.peak-line, .confidence-line, .threshold-line { font-size: 11.5px; color: #8a94a1; }
+.threshold-line { margin-top: auto; }
+.predict-row { display: flex; align-items: center; gap: 8px; }
+.predict-arrow { color: #c3c9d0; font-size: 13px; }
+
+.gauge-track {
+  position: relative;
+  height: 6px;
+  border-radius: 4px;
+  background: #f0f2f5;
+  overflow: visible;
+  margin-top: 2px;
+}
+.gauge-fill { height: 100%; border-radius: 4px; transition: width .4s ease, background-color .4s ease; }
+.gauge-tick { position: absolute; top: -2px; width: 2px; height: 10px; border-radius: 1px; transform: translateX(-1px); }
+
+/* ===== 실시간 온도 추이 그래프 ===== */
+
+.chart-panel { padding: 20px 24px 14px; }
+.chart-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.chart-title { font-size: 15px; font-weight: 700; }
+.chart-title-sub { font-size: 12px; color: #9aa5b1; }
+.chart-empty { height: 320px; display: flex; align-items: center; justify-content: center; color: #9aa5b1; font-size: 13px; }
+.chart-legend { display: flex; align-items: center; gap: 16px; font-size: 12px; color: #5c6b7a; margin-top: 8px; flex-wrap: wrap; }
+.chart-legend-item { display: flex; align-items: center; gap: 6px; }
+.chart-legend-item.muted { color: #9aa5b1; }
+.chart-legend-swatch { width: 12px; height: 3px; border-radius: 2px; }
+
+/* ===== 이벤트 로그 ===== */
+
+.log-panel { padding: 18px 24px; }
+.log-title { font-size: 15px; font-weight: 700; margin-bottom: 12px; }
+.log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 260px;
+  overflow-y: auto;
+}
+.log-item {
+  display: flex;
+  gap: 12px;
+  align-items: baseline;
+  font-size: 13px;
+  padding: 8px 12px;
+  border-left: 3px solid #c3c9d0;
+  background: #fafbfc;
+  border-radius: 0 8px 8px 0;
+}
+.log-item[data-level="normal"] { border-left-color: #1f8a5f; }
+.log-item[data-level="warning"] { border-left-color: #c98e00; }
+.log-item[data-level="danger"] { border-left-color: #c75a14; }
+.log-item[data-level="critical"] { border-left-color: #d7263d; background: #fff8f8; }
+.log-time { font-family: "Roboto Mono", monospace; color: #9aa5b1; flex-shrink: 0; }
+.log-text { color: #16202b; }
+.log-text[data-level="warning"] { color: #c98e00; }
+.log-text[data-level="danger"] { color: #c75a14; font-weight: 600; }
+.log-text[data-level="critical"] { color: #d7263d; font-weight: 700; }
+.log-empty { color: #9aa5b1; font-size: 13px; }
+
+/* 데이터 없음 / 오프라인 배너 */
+.offline-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: #f4f6f9;
+  border: 1px solid #e6e9ed;
+  color: #5c6b7a;
+  font-size: 13px;
+}
+.offline-dot { width: 8px; height: 8px; border-radius: 50%; background: #9aa5b1; }
+
+/* ===== 로그인 화면 ===== */
+
+.login-root { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.login-card {
+  background: #fff;
+  border: 1px solid #e6e9ed;
+  border-radius: 16px;
+  box-shadow: 0 4px 20px rgba(22, 32, 43, 0.06);
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.login-title { font-size: 16px; font-weight: 700; text-align: center; }
+.login-sub { font-size: 12.5px; color: #9aa5b1; text-align: center; margin-bottom: 18px; }
+.login-input {
+  font-family: "Roboto Mono", monospace;
+  font-size: 18px;
+  letter-spacing: 0.3em;
+  text-align: center;
+  padding: 12px 14px;
+  border: 1px solid #e2e6eb;
+  border-radius: 10px;
+  outline: none;
+  transition: border-color .15s;
+}
+.login-input:focus { border-color: #1768ac; }
+.login-error { color: #d7263d; font-size: 12px; text-align: center; margin-top: 8px; }
+.login-btn {
+  margin-top: 16px;
+  background: #1768ac;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: .15s;
+}
+.login-btn:hover { background: #0f4d80; }
+.login-btn:disabled { opacity: .6; cursor: default; }
