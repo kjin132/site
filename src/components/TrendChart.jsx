@@ -3,6 +3,10 @@
 // 주의: 실데이터에는 예측 "온도"가 없고 예측 "상태"만 있습니다 (명세서 2-3).
 // 아래 점선 구간은 마지막 추세를 단순 연장한 시각적 근사치이며, 실제 LSTM
 // 예측값이 아닙니다.
+//
+// x축은 시각 문자열이 아니라 인덱스(숫자)를 기준으로 그립니다.
+// (문자열 카테고리 기준은 배열이 매초 바뀌는 실시간 차트에서 ReferenceLine
+//  위치 매칭이 가끔 어긋나는 문제가 있어서, 숫자 기준이 훨씬 안정적입니다.)
 
 import {
   LineChart,
@@ -24,13 +28,14 @@ function buildChartData(history) {
 
   const data = history.map((h, i) =>
     i === history.length - 1
-      ? { ...h, mccb_pred: h.mccb, busbar_pred: h.busbar, wire_pred: h.wire }
-      : { ...h }
+      ? { ...h, idx: i, mccb_pred: h.mccb, busbar_pred: h.busbar, wire_pred: h.wire }
+      : { ...h, idx: i }
   );
 
   const steps = 5;
   for (let i = 1; i <= steps; i++) {
-    const futureEntry = { time: `+${i * 5}초` };
+    const idx = history.length - 1 + i;
+    const futureEntry = { idx, time: `+${i * 5}초` };
     PARTS.forEach((p) => {
       const slope = last[p.key] - prevPoint[p.key];
       futureEntry[`${p.key}_pred`] = last[p.key] + slope * i * 0.6;
@@ -43,7 +48,10 @@ function buildChartData(history) {
 export default function TrendChart({ history }) {
   const chartData = buildChartData(history);
   const lowestCritical = Math.min(...PARTS.map((p) => p.criticalTemp));
-  const lastActualTime = history.length ? history[history.length - 1].time : null;
+  const lastActualIdx = history.length ? history.length - 1 : null;
+
+  // idx(숫자) → 시각 문자열로 되돌려서 보여주기 위한 조회 함수
+  const timeAt = (idx) => chartData.find((d) => d.idx === idx)?.time ?? "";
 
   return (
     <div className="panel chart-panel">
@@ -58,7 +66,15 @@ export default function TrendChart({ history }) {
         <ResponsiveContainer width="100%" height={320}>
           <LineChart data={chartData} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
             <CartesianGrid stroke="#eef1f4" vertical={false} />
-            <XAxis dataKey="time" tick={{ fontSize: 11, fill: "#5c6b7a" }} interval="preserveStartEnd" minTickGap={36} />
+            <XAxis
+              dataKey="idx"
+              type="number"
+              domain={["dataMin", "dataMax"]}
+              tickFormatter={timeAt}
+              tick={{ fontSize: 11, fill: "#5c6b7a" }}
+              interval="preserveStartEnd"
+              minTickGap={36}
+            />
             <YAxis
               domain={[30, 100]}
               ticks={[30, 50, 70, 100]}
@@ -67,14 +83,14 @@ export default function TrendChart({ history }) {
             />
             <Tooltip
               formatter={(value, name) => [`${value?.toFixed?.(1) ?? value}°C`, name]}
-              labelFormatter={(l) => `시각 ${l}`}
+              labelFormatter={(idx) => `시각 ${timeAt(idx)}`}
             />
 
             <ReferenceArea y1={lowestCritical} y2={100} fill="#d7263d" fillOpacity={0.05} strokeOpacity={0} />
 
-            {lastActualTime && (
+            {lastActualIdx !== null && (
               <ReferenceLine
-                x={lastActualTime}
+                x={lastActualIdx}
                 stroke="#c8ccd2"
                 strokeDasharray="4 4"
                 label={{ value: "예측 →", position: "top", fontSize: 10, fill: "#9aa5b1" }}
