@@ -31,7 +31,7 @@ export function normalizeStatus(s) {
 export const PARTS = [
   {
     key: "mccb",
-    label: "차단기",
+    label: "MCCB",
     enLabel: "MCCB",
     idLabel: "#1",
     dotColor: "#3b6fd6",
@@ -41,7 +41,7 @@ export const PARTS = [
   },
   {
     key: "busbar",
-    label: "부스바",
+    label: "BUSBAR",
     enLabel: "Busbar",
     idLabel: "B-1",
     dotColor: "#a23fc4",
@@ -51,7 +51,7 @@ export const PARTS = [
   },
   {
     key: "wire",
-    label: "전선",
+    label: "Electric Wire",
     enLabel: "Electric Wire",
     idLabel: "L-1",
     dotColor: "#16a37a",
