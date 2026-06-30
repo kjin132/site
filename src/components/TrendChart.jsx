@@ -56,10 +56,10 @@ export default function TrendChart({ history }) {
         <div className="chart-empty">데이터 수신 대기 중...</div>
       ) : (
         <ResponsiveContainer width="100%" height={320}>
-          <LineChart data={chartData} margin={{ top: 16, right: 16, left: -16, bottom: 0 }}>
+          <LineChart data={chartData} margin={{ top: 16, right: 16, left: 0, bottom: 0 }}>
             <CartesianGrid stroke="#eef1f4" vertical={false} />
             <XAxis dataKey="time" tick={{ fontSize: 11, fill: "#5c6b7a" }} interval="preserveStartEnd" minTickGap={36} />
-            <YAxis domain={[30, 100]} tick={{ fontSize: 11, fill: "#5c6b7a" }} width={36} />
+            <YAxis domain={[30, 100]} tick={{ fontSize: 11, fill: "#5c6b7a" }} width={44} />
             <Tooltip
               formatter={(value, name) => [`${value?.toFixed?.(1) ?? value}°C`, name]}
               labelFormatter={(l) => `시각 ${l}`}
