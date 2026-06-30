@@ -63,6 +63,11 @@ function Dashboard() {
       prevPointRef.current = { mccb: v.mccb, busbar: v.busbar, wire: v.wire };
 
       setData(v);
+      console.log(
+        "[debug] data.timestamp =", v.timestamp,
+        "/ Date.now() =", Date.now(),
+        "/ 차이(ms) =", Date.now() - v.timestamp
+      );
       setHistory((prev) =>
         [...prev, { time: formatTime(v.timestamp), mccb: v.mccb, busbar: v.busbar, wire: v.wire }].slice(
           -HISTORY_LIMIT
